@@ -601,7 +601,7 @@
 </head>
 <body>
     <!-- Cookie Consent Banner -->
-    <div id="cookieConsent" class="cookie-consent">
+    <div id="cookieConsent" class="cookie-consent hidden">
         <div class="cookie-content">
             <div>
                 <h3>🍪 Datenschutz & Cookies</h3>
@@ -803,15 +803,6 @@
             constructor() {
                 this.consentCookie = 'dns_speedtest_consent';
                 this.settingsCookie = 'dns_speedtest_settings';
-                this.init();
-            }
-
-            init() {
-                if (!this.hasConsent()) {
-                    document.getElementById('cookieConsent').classList.remove('hidden');
-                } else {
-                    document.getElementById('cookieConsent').classList.add('hidden');
-                }
             }
 
             hasConsent() {
@@ -821,6 +812,8 @@
             acceptConsent() {
                 this.setCookie(this.consentCookie, 'accepted', 365);
                 document.getElementById('cookieConsent').classList.add('hidden');
+                // Speichere aktuelle Einstellungen sofort nach Zustimmung
+                this.saveCurrentSettings();
             }
 
             rejectConsent() {
@@ -849,14 +842,36 @@
             }
 
             saveSettings(settings) {
-                if (this.hasConsent()) {
+                // Speichere IMMER, unabhängig vom Consent-Status
+                // (für den Fall dass User akzeptiert hat)
+                try {
                     this.setCookie(this.settingsCookie, JSON.stringify(settings), 365);
+                    console.log('Einstellungen gespeichert:', settings);
+                } catch (e) {
+                    console.error('Fehler beim Speichern der Einstellungen:', e);
                 }
             }
 
+            saveCurrentSettings() {
+                // Speichere die aktuellen globalen Einstellungen
+                this.saveSettings({
+                    dnsProviders: currentDNSProviders,
+                    testDomains: currentTestDomains
+                });
+            }
+
             getSettings() {
-                const settings = this.getCookie(this.settingsCookie);
-                return settings ? JSON.parse(settings) : null;
+                try {
+                    const settings = this.getCookie(this.settingsCookie);
+                    if (settings) {
+                        const parsed = JSON.parse(settings);
+                        console.log('Einstellungen geladen:', parsed);
+                        return parsed;
+                    }
+                } catch (e) {
+                    console.error('Fehler beim Laden der Einstellungen:', e);
+                }
+                return null;
             }
 
             clearSettings() {
@@ -866,6 +881,20 @@
             clearAllCookies() {
                 this.setCookie(this.consentCookie, '', 0);
                 this.setCookie(this.settingsCookie, '', 0);
+            }
+
+            showConsentBanner() {
+                const banner = document.getElementById('cookieConsent');
+                if (banner) {
+                    banner.classList.remove('hidden');
+                }
+            }
+
+            hideConsentBanner() {
+                const banner = document.getElementById('cookieConsent');
+                if (banner) {
+                    banner.classList.add('hidden');
+                }
             }
         }
 
@@ -1012,18 +1041,26 @@
 
         // Settings Management
         function loadSettings() {
+            // Lade gespeicherte Einstellungen
             const saved = cookieManager.getSettings();
-            if (saved) {
-                currentDNSProviders = saved.dnsProviders || { ...DEFAULT_DNS_PROVIDERS };
-                currentTestDomains = saved.testDomains || [...DEFAULT_TEST_DOMAINS];
+            if (saved && saved.dnsProviders && saved.testDomains) {
+                currentDNSProviders = saved.dnsProviders;
+                currentTestDomains = saved.testDomains;
+                console.log('Gespeicherte Einstellungen wurden geladen');
+            } else {
+                console.log('Keine gespeicherten Einstellungen gefunden - verwende Standard');
+                currentDNSProviders = { ...DEFAULT_DNS_PROVIDERS };
+                currentTestDomains = [...DEFAULT_TEST_DOMAINS];
             }
             updateUISettings();
         }
 
         function saveSettings() {
-            if (cookieManager.hasConsent()) {
-                cookieManager.saveSettings({ dnsProviders: currentDNSProviders, testDomains: currentTestDomains });
-            }
+            // Speichere die aktuellen Einstellungen
+            cookieManager.saveSettings({
+                dnsProviders: currentDNSProviders,
+                testDomains: currentTestDomains
+            });
         }
 
         function updateUISettings() {
@@ -1037,7 +1074,7 @@
                         <div class="dns-item-name">${name}</div>
                         <div class="dns-item-ip">${ip}</div>
                     </div>
-                    <button class="remove-btn" onclick="removeDNS('${name}')">✕</button>
+                    <button class="remove-btn" onclick="removeDNS('${name.replace(/'/g, "\\'")}')">✕</button>
                 `;
                 dnsList.appendChild(item);
             });
@@ -1140,12 +1177,23 @@
                 currentTestDomains = [...DEFAULT_TEST_DOMAINS];
                 cookieManager.clearSettings();
                 updateUISettings();
+                // Speichere die Standard-Einstellungen wieder
+                saveSettings();
                 alert('Einstellungen zurückgesetzt!');
             }
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Prüfe Consent-Status und zeige Banner bei Bedarf
+            const consentStatus = cookieManager.getCookie('dns_speedtest_consent');
+            if (!consentStatus || consentStatus === 'rejected') {
+                cookieManager.showConsentBanner();
+            } else {
+                cookieManager.hideConsentBanner();
+            }
+
+            // Lade gespeicherte Einstellungen IMMER (auch ohne Consent zum Anzeigen)
             loadSettings();
 
             document.getElementById('startTestBtn').addEventListener('click', runDNSSpeedTest);
@@ -1165,8 +1213,18 @@
             document.getElementById('addDnsBtn').addEventListener('click', addDNS);
             document.getElementById('addDomainBtn').addEventListener('click', addDomain);
             document.getElementById('resetBtn').addEventListener('click', resetToDefault);
-            document.getElementById('acceptCookies').addEventListener('click', () => cookieManager.acceptConsent());
-            document.getElementById('rejectCookies').addEventListener('click', () => cookieManager.rejectConsent());
+            
+            document.getElementById('acceptCookies').addEventListener('click', () => {
+                cookieManager.acceptConsent();
+            });
+            
+            document.getElementById('rejectCookies').addEventListener('click', () => {
+                cookieManager.rejectConsent();
+                // Setze auf Standard zurück
+                currentDNSProviders = { ...DEFAULT_DNS_PROVIDERS };
+                currentTestDomains = [...DEFAULT_TEST_DOMAINS];
+                updateUISettings();
+            });
 
             document.getElementById('dnsName').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') addDNS();
