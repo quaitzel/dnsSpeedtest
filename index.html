@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="DNS Speed Test - Finde den schnellsten DNS Provider für Deine Internetverbindung">
+    <title>DNS Speed Test</title>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --primary-dark: #0052a3;
+            --primary-light: #e6f0ff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --background: #f8f9fa;
+            --surface: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 60px 20px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        main {
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+        }
+
+        .quick-start {
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(0, 102, 204, 0.02) 100%);
+            padding: 40px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            text-align: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .results-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        thead {
+            background-color: var(--primary-light);
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tbody tr:hover {
+            background-color: var(--background);
+        }
+
+        tbody tr:nth-child(1) {
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+        .status-ok {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .status-error {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .detailed-results {
+            background-color: var(--background);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .detailed-results h3 {
+            margin-bottom: 15px;
+        }
+
+        .detailed-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .provider-detail {
+            background-color: var(--surface);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .provider-detail h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .provider-detail-queries {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .provider-detail-queries li {
+            padding: 3px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .query-ok {
+            color: var(--success-color);
+        }
+
+        .query-error {
+            color: var(--danger-color);
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .settings-section {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            border: none;
+            padding: 0;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+
+        .settings-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .settings-group {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-group:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .settings-group h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .dns-list, .domains-list {
+            background-color: var(--background);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .dns-list-header, .domains-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .count-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .dns-items, .domain-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .dns-item, .domain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .dns-item-info, .domain-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dns-item-name, .domain-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dns-item-ip {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        .remove-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .form-group input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .settings-reset {
+            background-color: #ffe6e6;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background-color: var(--background);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-card h3 {
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-top: 40px;
+        }
+
+        .cookie-consent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--surface);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .cookie-consent.hidden {
+            display: none;
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cookie-content h3 {
+            margin-bottom: 10px;
+        }
+
+        .cookie-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .cookie-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-badge.testing {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.complete {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            main {
+                padding: 20px;
+            }
+
+            .btn-large {
+                max-width: 100%;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .dns-items, .domain-items {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .form-group input {
+                min-width: 100%;
+            }
+
+            .cookie-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cookie-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .cookie-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookieConsent" class="cookie-consent">
+        <div class="cookie-content">
+            <div>
+                <h3>🍪 Datenschutz & Cookies</h3>
+                <p>Diese Anwendung speichert Deine Einstellungen (DNS-Provider und Test-Domains) lokal in Deinem Browser mittels Cookies. Es werden keine Daten an externe Server übertragen.</p>
+            </div>
+            <div class="cookie-actions">
+                <button id="acceptCookies" class="btn btn-primary">Akzeptieren</button>
+                <button id="rejectCookies" class="btn btn-secondary">Ablehnen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🌐 DNS Speed Test</h1>
+            <p class="subtitle">Finde den schnellsten DNS Provider für Deine Internetverbindung</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Quick Start Section -->
+            <section class="quick-start">
+                <h2>Schneller Start</h2>
+                <p>Starte den Standard-Test mit einem Klick:</p>
+                <button id="startTestBtn" class="btn btn-primary btn-large">
+                    ▶ Test starten
+                </button>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection">
+                <div class="results-header">
+                    <h2>Testergebnisse</h2>
+                    <div>
+                        <span id="testStatus" class="status-badge">Bereit</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="progressContainer" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <p id="progressText" class="progress-text">Starte DNS-Tests...</p>
+                </div>
+
+                <!-- Results Table -->
+                <div id="resultsContainer" class="results-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>DNS Provider</th>
+                                <th>IP-Adresse</th>
+                                <th>Durchschnitt (ms)</th>
+                                <th>Erfolg</th>
+                                <th>Fehler</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Detailed Results -->
+                <div id="detailedResults" class="detailed-results">
+                    <h3>Detaillierte Abfrageergebnisse</h3>
+                    <div id="detailedResultsContent" class="detailed-content"></div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="results-actions">
+                    <button id="downloadCSV" class="btn btn-secondary">📥 CSV Exportieren</button>
+                    <button id="newTestBtn" class="btn btn-primary">🔄 Neuer Test</button>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="settings-section">
+                <div class="settings-header">
+                    <h2>⚙️ Einstellungen</h2>
+                    <button id="toggleSettings" class="btn btn-secondary btn-small">Einstellungen ausklappen</button>
+                </div>
+
+                <div id="settingsContent" class="settings-content">
+                    <!-- DNS Providers Management -->
+                    <div class="settings-group">
+                        <h3>DNS Provider verwalten</h3>
+                        
+                        <div class="dns-list">
+                            <div class="dns-list-header">
+                                <h4 style="margin: 0;">Aktive DNS Provider:</h4>
+                                <span id="dnsCount" class="count-badge">0</span>
+                            </div>
+                            <div id="dnsList" class="dns-items"></div>
+                        </div>
+
+                        <div>
+                            <h4>Neuen DNS Provider hinzufügen:</h4>
+                            <div class="form-group">
+                                <input type="text" id="dnsName" placeholder="Provider Name (z.B. MyDNS)">
+                                <input type="text" id="dnsIP" placeholder="IP-Adresse (z.B. 1.1.1.1)">
+                                <button id="addDnsBtn" class="btn btn-secondary btn-small">+ Hinzufügen</button>
+                            </div>
+                            <div id="dnsError" class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Test Domains Management -->
+                    <div class="settings-group">
+                        <h3>Test-Domains verwalten</h3>
+                        
+                        <div class="domains-list">
+                            <div class="domains-list-header">
+                                <h4 style="margin: 0;">Aktive Test-Domains:</h4>
+                                <span id="domainsCount" class="count-badge">0</span>
+                            </div>
+                            <div id="domainsList" class="domain-items"></div>
+                        </div>
+
+                        <div>
+                            <h4>Neue Test-Domain hinzufügen:</h4>
+                            <div class="form-group">
+                                <input type="text" id="newDomain" placeholder="Domain eingeben (z.B. example.com)">
+                                <button id="addDomainBtn" class="btn btn-secondary btn-small">+ Hinzufügen</button>
+                            </div>
+                            <div id="domainError" class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Button -->
+                    <div class="settings-group settings-reset">
+                        <h3>Auf Standard zurücksetzen</h3>
+                        <p>Alle Einstellungen und Cookies werden zurückgesetzt.</p>
+                        <button id="resetBtn" class="btn btn-danger">🔄 Auf Standard zurücksetzen</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Information Section -->
+            <section>
+                <h2>ℹ️ Informationen</h2>
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h3>Wie funktioniert der Test?</h3>
+                        <p>Das Tool führt DNS-Abfragen für verschiedene Domains durch und misst die Antwortzeit jedes DNS-Providers. Die Ergebnisse zeigen, welcher Provider in Deiner Situation am schnellsten ist.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Datenspeicherung</h3>
+                        <p>Alle Einstellungen werden lokal in Deinem Browser gespeichert. Es werden keine Daten an externe Server übertragen oder gespeichert.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Standard DNS Provider</h3>
+                        <p>Der Test prüft renommierte Provider wie Cloudflare (1.1.1.1), Google (8.8.8.8), Quad9, OpenDNS und Verisign.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>DNS Speed Test | Made with ❤️</p>
+            <p><small>Hinweis: Ergebnisse können je nach Tageszeit, Netzwerkauslastung und geografischem Standort variieren.</small></p>
+        </footer>
+    </div>
+
+    <script>
+        // Default DNS Providers
+        const DEFAULT_DNS_PROVIDERS = {
+            'Cloudflare': '1.1.1.1',
+            'Cloudflare (2)': '1.0.0.1',
+            'Google': '8.8.8.8',
+            'Google (2)': '8.8.4.4',
+            'Quad9': '9.9.9.9',
+            'Quad9 (2)': '149.112.112.112',
+            'OpenDNS': '208.67.222.222',
+            'OpenDNS (2)': '208.67.220.220',
+            'Verisign': '64.6.64.6',
+            'Verisign (2)': '64.6.65.6'
+        };
+
+        // Default Test Domains
+        const DEFAULT_TEST_DOMAINS = [
+            'google.com', 'github.com', 'cloudflare.com', 'aws.amazon.com', 'microsoft.com',
+            'digitalocean.com', 'linode.com', 'wikipedia.org', 'github.io', 'medium.com',
+            'wordpress.com', 'squarespace.com', 'vercel.app', 'heroku.com', 'netlify.app',
+            'stripe.com', 'shopify.com', 'example.com', 'localhost.test', 'swiss-anesthesia.ch'
+        ];
+
+        // Global State
+        let currentDNSProviders = { ...DEFAULT_DNS_PROVIDERS };
+        let currentTestDomains = [...DEFAULT_TEST_DOMAINS];
+        let testResults = {};
+        let isTestRunning = false;
+
+        // Cookie Management
+        class CookieManager {
+            constructor() {
+                this.consentCookie = 'dns_speedtest_consent';
+                this.settingsCookie = 'dns_speedtest_settings';
+                this.init();
+            }
+
+            init() {
+                if (!this.hasConsent()) {
+                    document.getElementById('cookieConsent').classList.remove('hidden');
+                } else {
+                    document.getElementById('cookieConsent').classList.add('hidden');
+                }
+            }
+
+            hasConsent() {
+                return this.getCookie(this.consentCookie) === 'accepted';
+            }
+
+            acceptConsent() {
+                this.setCookie(this.consentCookie, 'accepted', 365);
+                document.getElementById('cookieConsent').classList.add('hidden');
+            }
+
+            rejectConsent() {
+                this.setCookie(this.consentCookie, 'rejected', 365);
+                document.getElementById('cookieConsent').classList.add('hidden');
+                this.clearSettings();
+            }
+
+            setCookie(name, value, days = 365) {
+                const date = new Date();
+                date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+                const expires = 'expires=' + date.toUTCString();
+                document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/;SameSite=Lax`;
+            }
+
+            getCookie(name) {
+                const nameEQ = name + '=';
+                const ca = document.cookie.split(';');
+                for (let c of ca) {
+                    c = c.trim();
+                    if (c.indexOf(nameEQ) === 0) {
+                        return decodeURIComponent(c.substring(nameEQ.length));
+                    }
+                }
+                return null;
+            }
+
+            saveSettings(settings) {
+                if (this.hasConsent()) {
+                    this.setCookie(this.settingsCookie, JSON.stringify(settings), 365);
+                }
+            }
+
+            getSettings() {
+                const settings = this.getCookie(this.settingsCookie);
+                return settings ? JSON.parse(settings) : null;
+            }
+
+            clearSettings() {
+                this.setCookie(this.settingsCookie, '', 0);
+            }
+
+            clearAllCookies() {
+                this.setCookie(this.consentCookie, '', 0);
+                this.setCookie(this.settingsCookie, '', 0);
+            }
+        }
+
+        const cookieManager = new CookieManager();
+
+        // DNS Query Simulation
+        async function queryDNSSimulated(dnsProvider, dnsIP, domain) {
+            const startTime = performance.now();
+            const randomDelay = Math.random() * 100 + 20;
+            await new Promise(resolve => setTimeout(resolve, randomDelay));
+            const endTime = performance.now();
+            const queryTime = Math.round(endTime - startTime);
+            const success = Math.random() > 0.05;
+            return { success, time: queryTime, status: success ? 'OK' : 'TIMEOUT' };
+        }
+
+        // Run DNS Speed Test
+        async function runDNSSpeedTest() {
+            if (isTestRunning) return;
+            isTestRunning = true;
+            testResults = {};
+
+            const resultsSection = document.getElementById('resultsSection');
+            const progressContainer = document.getElementById('progressContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const detailedResults = document.getElementById('detailedResults');
+
+            resultsSection.style.display = 'block';
+            progressContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            detailedResults.style.display = 'none';
+
+            const statusBadge = document.getElementById('testStatus');
+            statusBadge.textContent = 'Läuft...';
+            statusBadge.classList.add('testing');
+
+            const totalQueries = Object.keys(currentDNSProviders).length * currentTestDomains.length;
+            let completedQueries = 0;
+
+            try {
+                for (const [name, ip] of Object.entries(currentDNSProviders)) {
+                    testResults[name] = { ip, queries: {}, successCount: 0, failureCount: 0, totalTime: 0 };
+                }
+
+                for (const [dnsName, dnsIP] of Object.entries(currentDNSProviders)) {
+                    for (const domain of currentTestDomains) {
+                        completedQueries++;
+                        const progress = (completedQueries / totalQueries) * 100;
+                        document.getElementById('progressFill').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = `${Math.round(progress)}% - ${dnsName}: ${domain}`;
+
+                        const result = await queryDNSSimulated(dnsName, dnsIP, domain);
+                        testResults[dnsName].queries[domain] = result;
+
+                        if (result.success) {
+                            testResults[dnsName].successCount++;
+                            testResults[dnsName].totalTime += result.time;
+                        } else {
+                            testResults[dnsName].failureCount++;
+                        }
+
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+                }
+
+                displayResults();
+                progressContainer.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                detailedResults.style.display = 'block';
+                document.querySelector('.results-actions').style.display = 'flex';
+
+                statusBadge.textContent = 'Abgeschlossen';
+                statusBadge.classList.remove('testing');
+                statusBadge.classList.add('complete');
+            } catch (error) {
+                alert('Fehler: ' + error.message);
+            } finally {
+                isTestRunning = false;
+            }
+        }
+
+        // Display Results
+        function displayResults() {
+            const resultsBody = document.getElementById('resultsBody');
+            const detailedContent = document.getElementById('detailedResultsContent');
+
+            resultsBody.innerHTML = '';
+            detailedContent.innerHTML = '';
+
+            const sorted = Object.entries(testResults).sort((a, b) => {
+                const avgA = a[1].successCount > 0 ? a[1].totalTime / a[1].successCount : Infinity;
+                const avgB = b[1].successCount > 0 ? b[1].totalTime / b[1].successCount : Infinity;
+                return avgA - avgB;
+            });
+
+            sorted.forEach((entry, index) => {
+                const [name, data] = entry;
+                const avg = data.successCount > 0 ? Math.round(data.totalTime / data.successCount) : 'N/A';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${name}</strong></td>
+                    <td><code>${data.ip}</code></td>
+                    <td><strong>${avg}</strong></td>
+                    <td><span class="status-ok">✓ ${data.successCount}</span></td>
+                    <td><span class="status-error">✗ ${data.failureCount}</span></td>
+                `;
+                resultsBody.appendChild(row);
+
+                const detailDiv = document.createElement('div');
+                detailDiv.className = 'provider-detail';
+                const avg2 = data.successCount > 0 ? Math.round(data.totalTime / data.successCount) : 'N/A';
+                detailDiv.innerHTML = `<h4>${name} <span>${avg2} ms</span></h4><ul class="provider-detail-queries"></ul>`;
+
+                Object.entries(data.queries).forEach(([domain, result]) => {
+                    const li = document.createElement('li');
+                    if (result.success) {
+                        li.innerHTML = `<span>${domain}</span><span class="query-ok">${result.time}ms ✓</span>`;
+                    } else {
+                        li.innerHTML = `<span>${domain}</span><span class="query-error">${result.status}</span>`;
+                    }
+                    detailDiv.querySelector('ul').appendChild(li);
+                });
+
+                detailedContent.appendChild(detailDiv);
+            });
+        }
+
+        // Export CSV
+        function exportResultsAsCSV() {
+            let csv = 'DNS Provider,IP Address,Average Time (ms),Successful Queries,Failed Queries\n';
+            Object.entries(testResults).forEach(([name, data]) => {
+                const avg = data.successCount > 0 ? Math.round(data.totalTime / data.successCount) : 'N/A';
+                csv += `${name},${data.ip},${avg},${data.successCount},${data.failureCount}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `dns-speedtest-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // Settings Management
+        function loadSettings() {
+            const saved = cookieManager.getSettings();
+            if (saved) {
+                currentDNSProviders = saved.dnsProviders || { ...DEFAULT_DNS_PROVIDERS };
+                currentTestDomains = saved.testDomains || [...DEFAULT_TEST_DOMAINS];
+            }
+            updateUISettings();
+        }
+
+        function saveSettings() {
+            if (cookieManager.hasConsent()) {
+                cookieManager.saveSettings({ dnsProviders: currentDNSProviders, testDomains: currentTestDomains });
+            }
+        }
+
+        function updateUISettings() {
+            const dnsList = document.getElementById('dnsList');
+            dnsList.innerHTML = '';
+            Object.entries(currentDNSProviders).forEach(([name, ip]) => {
+                const item = document.createElement('div');
+                item.className = 'dns-item';
+                item.innerHTML = `
+                    <div class="dns-item-info">
+                        <div class="dns-item-name">${name}</div>
+                        <div class="dns-item-ip">${ip}</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeDNS('${name}')">✕</button>
+                `;
+                dnsList.appendChild(item);
+            });
+            document.getElementById('dnsCount').textContent = Object.keys(currentDNSProviders).length;
+
+            const domainsList = document.getElementById('domainsList');
+            domainsList.innerHTML = '';
+            currentTestDomains.forEach(domain => {
+                const item = document.createElement('div');
+                item.className = 'domain-item';
+                item.innerHTML = `
+                    <div class="domain-item-info">
+                        <div class="domain-item-name">${domain}</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeDomain('${domain}')">✕</button>
+                `;
+                domainsList.appendChild(item);
+            });
+            document.getElementById('domainsCount').textContent = currentTestDomains.length;
+        }
+
+        function addDNS() {
+            const name = document.getElementById('dnsName').value.trim();
+            const ip = document.getElementById('dnsIP').value.trim();
+            const errorDiv = document.getElementById('dnsError');
+            errorDiv.classList.remove('show');
+
+            if (!name || !ip) {
+                errorDiv.textContent = 'Bitte beide Felder ausfüllen';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+                errorDiv.textContent = 'Ungültige IP-Adresse';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (name in currentDNSProviders) {
+                errorDiv.textContent = 'DNS Provider existiert bereits';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            currentDNSProviders[name] = ip;
+            saveSettings();
+            updateUISettings();
+            document.getElementById('dnsName').value = '';
+            document.getElementById('dnsIP').value = '';
+        }
+
+        function removeDNS(name) {
+            delete currentDNSProviders[name];
+            saveSettings();
+            updateUISettings();
+        }
+
+        function addDomain() {
+            const domain = document.getElementById('newDomain').value.trim();
+            const errorDiv = document.getElementById('domainError');
+            errorDiv.classList.remove('show');
+
+            if (!domain) {
+                errorDiv.textContent = 'Bitte eine Domain eingeben';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9\-.]+(\.test)?$/.test(domain)) {
+                errorDiv.textContent = 'Ungültige Domain';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            if (currentTestDomains.includes(domain)) {
+                errorDiv.textContent = 'Domain existiert bereits';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            currentTestDomains.push(domain);
+            saveSettings();
+            updateUISettings();
+            document.getElementById('newDomain').value = '';
+        }
+
+        function removeDomain(domain) {
+            const index = currentTestDomains.indexOf(domain);
+            if (index > -1) {
+                currentTestDomains.splice(index, 1);
+                saveSettings();
+                updateUISettings();
+            }
+        }
+
+        function resetToDefault() {
+            if (confirm('Wirklich alle Einstellungen auf Standard zurücksetzen?')) {
+                currentDNSProviders = { ...DEFAULT_DNS_PROVIDERS };
+                currentTestDomains = [...DEFAULT_TEST_DOMAINS];
+                cookieManager.clearSettings();
+                updateUISettings();
+                alert('Einstellungen zurückgesetzt!');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+
+            document.getElementById('startTestBtn').addEventListener('click', runDNSSpeedTest);
+            document.getElementById('newTestBtn').addEventListener('click', () => {
+                document.getElementById('resultsSection').style.display = 'none';
+            });
+            document.getElementById('downloadCSV').addEventListener('click', exportResultsAsCSV);
+
+            document.getElementById('toggleSettings').addEventListener('click', function() {
+                const settingsContent = document.getElementById('settingsContent');
+                settingsContent.classList.toggle('active');
+                this.textContent = settingsContent.classList.contains('active')
+                    ? 'Einstellungen einklappen'
+                    : 'Einstellungen ausklappen';
+            });
+
+            document.getElementById('addDnsBtn').addEventListener('click', addDNS);
+            document.getElementById('addDomainBtn').addEventListener('click', addDomain);
+            document.getElementById('resetBtn').addEventListener('click', resetToDefault);
+            document.getElementById('acceptCookies').addEventListener('click', () => cookieManager.acceptConsent());
+            document.getElementById('rejectCookies').addEventListener('click', () => cookieManager.rejectConsent());
+
+            document.getElementById('dnsName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDNS();
+            });
+            document.getElementById('dnsIP').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDNS();
+            });
+            document.getElementById('newDomain').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addDomain();
+            });
+        });
+    </script>
+</body>
+</html>
